@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '/screens/bottom_bar.dart';
 import '/inner_screens/product_details.dart';
 import '/provider/dark_theme_provider.dart';
-import '/screens/bottom_bar.dart';
 import '/consts/theme_data.dart';
 import '/screens/cart.dart';
 import '/screens/feeds.dart';
 import '/screens/wishlist.dart';
+import '/inner_screens/categories_feed.dart';
+import '/provider/products.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,12 +40,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
+          ChangeNotifierProvider(
+            create: (_) => Products(),
+          ),
           ChangeNotifierProvider(create: (_) {
             return themeChangeProvider;
-          })
+          }),
         ],
         child:
-        Consumer<DarkThemeProvider>(builder: (context, themeData, child) {
+            Consumer<DarkThemeProvider>(builder: (context, themeData, child) {
           return MaterialApp(
             title: 'Pizza Paradise',
             theme: Styles.themeData(themeChangeProvider.darkTheme, context),
@@ -58,8 +62,8 @@ class _MyAppState extends State<MyApp> {
               FeedScreen.routeName: (ctx) => FeedScreen(),
               WishlistScreen.routeName: (ctx) => WishlistScreen(),
               ProductDetails.routeName: (ctx) => ProductDetails(),
+              CategoriesFeedScreen.routeName: (ctx) => CategoriesFeedScreen(),
             },
-
           );
         }));
   }

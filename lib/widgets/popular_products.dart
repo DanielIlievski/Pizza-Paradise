@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
+import 'package:provider/provider.dart';
+
+import '/inner_screens/product_details.dart';
+import '/models/product.dart';
 
 class PopularProducts extends StatelessWidget {
-  const PopularProducts({Key? key}) : super(key: key);
+  //const PopularProducts({Key? key, required this.imageUrl, required this.title, required this.description, required this.price}) : super(key: key);
+
+  //ovie gi stavam tuka za da gi popolnam i da gi prikazam na home page kako popular products
+  //gi prakjam kako argument vo konstruktor od home.dart
+  /*  final String imageUrl;
+   final String title;
+   final String description;
+   final double price;*/
 
   @override
   Widget build(BuildContext context) {
+    final productsAttributes = Provider.of<Product>(context);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -22,23 +35,23 @@ class PopularProducts extends StatelessWidget {
             borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(10.0),
                 bottomRight: Radius.circular(10.0)),
-            onTap: (){},
-
+            onTap: () => Navigator.pushNamed(context, ProductDetails.routeName,
+                arguments: productsAttributes.id),
             child: Column(
               children: [
                 Stack(
                   children: [
                     Container(
                       height: 170,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage('https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fimagesvc.meredithcorp.io%2Fv3%2Fmm%2Fimage%3Furl%3Dhttps%253A%252F%252Fstatic.onecms.io%252Fwp-content%252Fuploads%252Fsites%252F9%252F2021%252F06%252F15%252Fmozzarella-pizza-margherita-FT-RECIPE0621.jpg&q=85'),
-                            fit: BoxFit.fill,
-                          )),
+                        image: NetworkImage(productsAttributes.imageUrl),
+                        fit: BoxFit.cover,
+                      )),
                     ),
                     Positioned(
-                      right: 12,
-                      top: 10,
+                      right: 10,
+                      top: 8,
                       child: Icon(
                         Entypo.star_outlined,
                         color: Colors.grey.shade800,
@@ -46,7 +59,7 @@ class PopularProducts extends StatelessWidget {
                     ),
                     const Positioned(
                       right: 10,
-                      top: 7,
+                      top: 8,
                       child: Icon(
                         Entypo.star,
                         color: Colors.white,
@@ -59,9 +72,11 @@ class PopularProducts extends StatelessWidget {
                           padding: const EdgeInsets.all(10.0),
                           color: Theme.of(context).backgroundColor,
                           child: Text(
-                            '\$ 12.2',
+                            '\$ ${productsAttributes.price}',
                             style: TextStyle(
-                                color: Theme.of(context).textSelectionTheme.selectionColor),
+                                color: Theme.of(context)
+                                    .textSelectionTheme
+                                    .selectionColor),
                           )),
                     ),
                   ],
@@ -71,41 +86,46 @@ class PopularProducts extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Title',
+                      Text(
+                        productsAttributes.title,
                         maxLines: 1,
-                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.bold),
                       ),
-
                       Row(
-
                         children: [
-                          Text(
-                            'Description',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
-                          ),
-                          const Spacer(),
-
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                                onTap: (){},
-                                borderRadius: BorderRadius.circular(30.0),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    MaterialCommunityIcons.cart_plus,
-                                    size:25,
-                                    color: Colors.black,
-                                  ),
-                                )
+                          Expanded(
+                            flex: 4,
+                            child: Text(
+                              productsAttributes.description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade800),
                             ),
                           ),
-
-                        ],)
-
+                          const Spacer(),
+                          Expanded(
+                            flex: 1,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                  onTap: () {},
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      MaterialCommunityIcons.cart_plus,
+                                      size: 25,
+                                      color: Colors.black,
+                                    ),
+                                  )),
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

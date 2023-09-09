@@ -4,11 +4,14 @@ import 'package:backdrop/button.dart';
 import 'package:backdrop/scaffold.dart';
 import 'package:carousel_pro_nullsafety/carousel_pro_nullsafety.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:provider/provider.dart';
 
 import '/consts/colors.dart';
 import '/widgets/back_layer.dart';
 import '/widgets/category.dart';
 import '/widgets/popular_products.dart';
+import '/provider/products.dart';
+import '/screens/feeds.dart';
 
 //we use Scaffold because we want to return a screen
 
@@ -33,8 +36,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productsData = Provider.of<Products>(context);
+    final popularItems = productsData.popularProducts;
+
     return Scaffold(
       body: Center(
+
+          //BACKDROP SCAFFOLD
           child: BackdropScaffold(
         frontLayerBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
         headerHeight: MediaQuery.of(context).size.height * 0.25,
@@ -119,41 +127,34 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       'Popular dishes',
                       style:
                           TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
                     ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'View all...',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                            color: Colors.red),
-                      ),
-                    ),
+                    Spacer(),
                   ],
                 ),
               ),
               Container(
                 height: 210,
                 width: MediaQuery.of(context).size.width * 0.95,
-                child: Swiper(
-                  itemCount: _swiperImages.length,
-                  autoplay: true,
-                  onTap: (index) {},
-                  itemBuilder: (BuildContext ctx, int index) {
-                    return ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                            color: Colors.blueGrey,
-                            child: Image.asset(_swiperImages[index],
-                                fit: BoxFit.fill)));
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 25.0),
+                  child: Swiper(
+                    itemCount: _swiperImages.length,
+                    autoplay: true,
+                    onTap: (index) {},
+                    itemBuilder: (BuildContext ctx, int index) {
+                      return ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                              color: Colors.blueGrey,
+                              child: Image.asset(_swiperImages[index],
+                                  fit: BoxFit.cover)));
+                    },
+                  ),
                 ),
               ),
 
@@ -166,9 +167,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       style:
                           TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(FeedScreen.routeName,
+                            arguments: 'popular');
+                      },
                       child: const Text(
                         'View all...',
                         style: TextStyle(
@@ -185,10 +189,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 285,
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 child: ListView.builder(
-                    itemCount: 8,
+                    itemCount: popularItems.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext ctx, int index) {
-                      return const PopularProducts();
+                      return ChangeNotifierProvider.value(
+                        value: popularItems[index],
+                        child: PopularProducts(
+                            //ova zakomentiranovo e drug pristap preku KONSTRUKOR
+                            //ova gore shto go odbrav so ChangeNotifierProvider e so DEPENDENCY INJECTION i mislam deka e podobro
+
+                            /* imageUrl:popularItems[index].imageUrl,
+                        title: popularItems[index].title,
+                        description: popularItems[index].description,
+                        price: popularItems[index].price,*/
+                            ),
+                      );
                     }),
               ),
             ],
