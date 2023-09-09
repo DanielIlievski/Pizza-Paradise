@@ -7,4 +7,8 @@ class MyAppIcons {
   static const IconData search = Feather.search;
   static const IconData user = Feather.user;
   static const IconData cart = MaterialCommunityIcons.cart;
+  static const IconData bag = Feather.shopping_bag;
+  static const IconData trash = Feather.trash;
+  static const IconData wishlist = Feather.heart;
+  static const IconData upload = Feather.upload;
 }
