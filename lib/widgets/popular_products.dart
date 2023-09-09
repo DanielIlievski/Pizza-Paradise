@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '/inner_screens/product_details.dart';
 import '/models/product.dart';
+import '/provider/cart_provider.dart';
 
 class PopularProducts extends StatelessWidget {
   //const PopularProducts({Key? key, required this.imageUrl, required this.title, required this.description, required this.price}) : super(key: key);
@@ -18,6 +19,7 @@ class PopularProducts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productsAttributes = Provider.of<Product>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -112,13 +114,22 @@ class PopularProducts extends StatelessWidget {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                  onTap: () {},
+                                  onTap: cartProvider.getCartItems.containsKey(productsAttributes.id) ? (){}
+                                      : () {
+                                    cartProvider.addProductToCart(
+                                        productsAttributes.id,
+                                        productsAttributes.price,
+                                        productsAttributes.title,
+                                        productsAttributes.imageUrl);
+                                  },
                                   borderRadius: BorderRadius.circular(30.0),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(8.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
                                     child: Icon(
-                                      MaterialCommunityIcons.cart_plus,
-                                      size: 25,
+                                      //ako e vekje dodaden ne ja pokazuvaj kosnickata tuku druga ikona
+                                      cartProvider.getCartItems.containsKey(productsAttributes.id) ? MaterialCommunityIcons.check_all
+                                          : MaterialCommunityIcons.cart_plus,
+                                      size:25,
                                       color: Colors.black,
                                     ),
                                   )),

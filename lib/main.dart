@@ -10,6 +10,7 @@ import '/screens/feeds.dart';
 import '/screens/wishlist.dart';
 import '/inner_screens/categories_feed.dart';
 import '/provider/products.dart';
+import '/provider/cart_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,6 +47,9 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (_) {
             return themeChangeProvider;
           }),
+          ChangeNotifierProvider(
+            create: (_) => CartProvider(),
+          ),
         ],
         child:
             Consumer<DarkThemeProvider>(builder: (context, themeData, child) {

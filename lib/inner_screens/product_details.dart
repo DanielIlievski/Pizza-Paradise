@@ -9,8 +9,6 @@ import '/screens/cart.dart';
 import '/screens/wishlist.dart';
 import '/widgets/feeds_products.dart';
 import '/provider/products.dart';
-import 'package:badges/badges.dart';
-import 'package:flutter/material.dart';
 
 class ProductDetails extends StatefulWidget {
   static const routeName = '/ProductDetails';

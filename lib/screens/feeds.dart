@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '/models/product.dart';
 import '/widgets/feeds_products.dart';
 import '/provider/products.dart';
@@ -13,7 +12,7 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final popular = ModalRoute.of(context)!.settings.arguments as String;
+    final popular = ModalRoute.of(context)?.settings.arguments.toString();
 
     final productsProvider = Provider.of<Products>(context);
     List<Product> productsList = productsProvider.products;
