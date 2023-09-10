@@ -1,11 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '/consts/colors.dart';
 import '/screens/bottom_bar.dart';
 import '/screens/auth/login.dart';
 import '/screens/auth/signup.dart';
+import '/services/global_methods.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -22,6 +26,10 @@ class _LandingPageState extends State<LandingPage>
     'https://images.pexels.com/photos/2532006/pexels-photo-2532006.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     'https://images.pexels.com/photos/4253128/pexels-photo-4253128.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   ];
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  GlobalMethods _globalMethods = GlobalMethods();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -49,6 +57,63 @@ class _LandingPageState extends State<LandingPage>
     super.dispose();
   }
 
+  //GOOGLE SIGN IN
+  Future<void> _googleSignIn() async {
+    final googleSignIn = GoogleSignIn();
+    final googleAccount = await googleSignIn.signIn();
+
+    if (googleAccount != null) {
+      final googleAuth = await googleAccount.authentication;
+      if (googleAuth.accessToken != null && googleAuth.idToken != null) {
+        try {
+          //initialize a date for fulfilling the 'joinedAt' field at the database
+          var date = DateTime.now().toString();
+          var dateParse = DateTime.parse(date);
+          var formattedDate =
+              "${dateParse.day}-${dateParse.month}-${dateParse.year}";
+
+          final authResult = await _auth.signInWithCredential(
+              GoogleAuthProvider.credential(
+                  accessToken: googleAuth.accessToken,
+                  idToken: googleAuth.idToken));
+          // ACCESS THE FIRESTORE (nosqsl database) to add new User to the collection
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(authResult.user?.uid)
+              .set({
+            'id': authResult.user?.uid,
+            'name': authResult.user?.displayName,
+            'email': authResult.user?.email,
+            'phoneNumber': authResult.user?.phoneNumber,
+            'imageUrl': authResult.user?.photoURL,
+            'joinedAt': formattedDate,
+            'createdAt': Timestamp.now(),
+          });
+        } catch (error) {
+          _globalMethods.authErrorHandle(error.toString(), context);
+        }
+      }
+    }
+  }
+
+  //ANONIMOUSLY SIGN IN
+  void _loginAnonymously() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.signInAnonymously();
+    } catch (error) {
+      _globalMethods.authErrorHandle(error.toString(), context);
+      print('error occured ${error.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,9 +133,9 @@ class _LandingPageState extends State<LandingPage>
       Container(
         margin: const EdgeInsets.only(top: 30),
         width: double.infinity,
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
+          children: [
             Text(
               'Welcome',
               style: TextStyle(
@@ -114,9 +179,9 @@ class _LandingPageState extends State<LandingPage>
                     onPressed: () {
                       Navigator.pushNamed(context, LoginScreen.routeName);
                     },
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Login',
                           style: TextStyle(
@@ -149,9 +214,9 @@ class _LandingPageState extends State<LandingPage>
                     onPressed: () {
                       Navigator.pushNamed(context, SignUpScreen.routeName);
                     },
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Sign up',
                           style: TextStyle(
@@ -173,8 +238,8 @@ class _LandingPageState extends State<LandingPage>
           const SizedBox(
             height: 30,
           ),
-          Row(
-            children: const [
+          const Row(
+            children: [
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
@@ -209,18 +274,22 @@ class _LandingPageState extends State<LandingPage>
                 style: OutlinedButton.styleFrom(
                     shape: const StadiumBorder(),
                     side: const BorderSide(width: 2, color: Colors.red)),
-                onPressed: () {},
+                onPressed: _googleSignIn,
                 child: const Text('Google +'),
               ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    side: const BorderSide(width: 2, color: Colors.deepPurple)),
-                onPressed: () {
-                  Navigator.pushNamed(context, BottomBarScreen.routeName);
-                },
-                child: const Text('Continue as a guest'),
-              ),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                          side: const BorderSide(
+                              width: 2, color: Colors.deepPurple)),
+                      onPressed: () {
+                        _loginAnonymously();
+                        // Navigator.pushNamed(context, BottomBarScreen.routeName);
+                      },
+                      child: const Text('Continue as a guest'),
+                    ),
             ],
           ),
           const SizedBox(

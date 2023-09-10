@@ -60,7 +60,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text(_pages[_selectedIndex]!['title'] as String),),
+      // appBar: AppBar(centerTitle: true, title: Text(_pages[_selectedIndex]!['title'] as String),),
       body: _pages[_selectedIndex]!['page'] as Widget,
       bottomNavigationBar: BottomAppBar(
         notchMargin: 3, // the margin about the circular search buttom

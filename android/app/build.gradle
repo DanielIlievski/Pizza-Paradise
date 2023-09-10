@@ -51,6 +51,9 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        //added for resolving the error
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -67,5 +70,9 @@ flutter {
 }
 
 dependencies {
+    def multidex_version = "2.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation platform('com.google.firebase:firebase-bom:29.2.1')
 }
+
+apply plugin: 'com.google.gms.google-services'

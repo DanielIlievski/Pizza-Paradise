@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:backdrop/app_bar.dart';
-import 'package:backdrop/button.dart';
-import 'package:backdrop/scaffold.dart';
-import 'package:carousel_pro_nullsafety/carousel_pro_nullsafety.dart';
+import 'package:backdrop/backdrop.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:provider/provider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 import '/consts/colors.dart';
 import '/widgets/back_layer.dart';
@@ -84,26 +82,29 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 height: 190.0,
                 width: double.infinity,
-                child: Carousel(
-                  boxFit: BoxFit.fill,
-                  autoplay: true,
-                  animationCurve: Curves.fastOutSlowIn,
-                  animationDuration: const Duration(milliseconds: 1000),
-                  dotSize: 5.0,
-                  dotIncreasedColor: Colors.purple,
-                  dotBgColor: Colors.black.withOpacity(0.2),
-                  dotPosition: DotPosition.bottomCenter,
-                  showIndicator: true,
-                  indicatorBgPadding: 5.0,
-                  images: [
+                child: CarouselSlider(
+                  items: [
                     Image.asset(_carouselImages[0], fit: BoxFit.cover),
                     Image.asset(_carouselImages[1], fit: BoxFit.cover),
                     Image.asset(_carouselImages[2], fit: BoxFit.cover),
                   ],
+                  options: CarouselOptions(
+                    autoPlay: true,
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                    enableInfiniteScroll: true,
+                  ),
+                  // boxFit: BoxFit.fill,
+                  // dotSize: 5.0,
+                  // dotIncreasedColor: Colors.purple,
+                  // dotBgColor: Colors.black.withOpacity(0.2),
+                  // dotPosition: DotPosition.bottomCenter,
+                  // showIndicator: true,
+                  // indicatorBgPadding: 5.0,
                 ),
               ),
               const Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Categories',
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
@@ -124,10 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     }),
               ),
 
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Row(
-                  children: const [
+                  children: [
                     Text(
                       'Popular dishes',
                       style:

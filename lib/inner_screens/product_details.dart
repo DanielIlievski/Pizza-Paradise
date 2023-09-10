@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '/provider/dark_theme_provider.dart';
 import '/consts/colors.dart';
@@ -63,7 +63,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           onTap: () {},
                           borderRadius: BorderRadius.circular(30),
                           child: const Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: Icon(
                               Icons.save,
                               size: 23,
@@ -79,7 +79,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           onTap: () {},
                           borderRadius: BorderRadius.circular(30),
                           child: const Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: Icon(
                               Icons.share,
                               size: 23,
@@ -265,14 +265,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ),
                 actions: <Widget>[
                   Consumer<FavsProvider>(
-                    builder: (_, favs, ch) => Badge(
-                      badgeColor: ColorsConsts.cartBadgeColor,
-                      animationType: BadgeAnimationType.slide,
-                      toAnimate: true,
-                      position: BadgePosition.topEnd(top: 5, end: 7),
+                    builder: (_, favs, ch) => badges.Badge(
+                      badgeStyle: badges.BadgeStyle(
+                        badgeColor: ColorsConsts.cartBadgeColor,
+                      ),
+                      badgeAnimation: const badges.BadgeAnimation.slide(),
+                      position: badges.BadgePosition.topEnd(top: 5, end: 7),
                       badgeContent: Text(
                         favs.getFavsItems.length.toString(),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                       child: IconButton(
                         icon: Icon(
@@ -287,11 +288,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ),
                   ),
                   Consumer<CartProvider>(
-                    builder: (_, cart, ch) => Badge(
-                      badgeColor: ColorsConsts.cartBadgeColor,
-                      animationType: BadgeAnimationType.slide,
-                      toAnimate: true,
-                      position: BadgePosition.topEnd(top: 5, end: 7),
+                    builder: (_, cart, ch) => badges.Badge(
+                      badgeStyle: badges.BadgeStyle(
+                        badgeColor: ColorsConsts.cartBadgeColor,
+                      ),
+                      badgeAnimation: const badges.BadgeAnimation.slide(),
+                      position: badges.BadgePosition.topEnd(top: 5, end: 7),
                       badgeContent: Text(
                         cart.getCartItems.length.toString(),
                         style: const TextStyle(color: Colors.white),

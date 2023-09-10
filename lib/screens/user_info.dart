@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
 import 'package:list_tile_switch/list_tile_switch.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '/consts/colors.dart';
 import '/consts/my_icons.dart';
@@ -18,6 +20,13 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   final bool _value = false;
   ScrollController _scrollController = ScrollController();
   var top = 0.0;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? _uid;
+  String? _name;
+  String? _email;
+  String? _joinedAt;
+  int? _phoneNumber;
+  String? _userImageUrl;
 
   @override
   void initState() {
@@ -25,6 +34,32 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       setState(() {});
+    });
+    getData();
+  }
+
+  //GET DATA ABOUT USER FROM DATABASE
+  void getData() async {
+    User? user = _auth.currentUser;
+    _uid = user!.uid;
+
+    //logs for checking if it works
+    print('user.displayName ${user.displayName}');
+    print('user.photoURL ${user.photoURL}');
+
+    final DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(_uid).get();
+
+    if (userDoc == null) {
+      return;
+    }
+
+    setState(() {
+      _name = userDoc.get('name');
+      _email = user.email!;
+      _joinedAt = userDoc.get('joinedAt');
+      _phoneNumber = userDoc.get('phoneNumber');
+      _userImageUrl = userDoc.get('imageUrl');
     });
   }
 
@@ -76,8 +111,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                 Container(
                                   height: kToolbarHeight / 1.8,
                                   width: kToolbarHeight / 1.8,
-                                  decoration: const BoxDecoration(
-                                    boxShadow: [
+                                  decoration: BoxDecoration(
+                                    boxShadow: const [
                                       BoxShadow(
                                         color: Colors.white,
                                         blurRadius: 1.0,
@@ -86,18 +121,19 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                     shape: BoxShape.circle,
                                     image: DecorationImage(
                                       fit: BoxFit.fill,
-                                      image: NetworkImage(
-                                          'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                                      image: NetworkImage(_userImageUrl != null
+                                          ? _userImageUrl.toString()
+                                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(
                                   width: 12,
                                 ),
-                                const Text(
+                                Text(
                                   // 'top.toString()',
-                                  'Guest',
-                                  style: TextStyle(
+                                  _name != null ? _name.toString() : 'Guest',
+                                  style: const TextStyle(
                                       fontSize: 20.0, color: Colors.white),
                                 ),
                               ],
@@ -105,9 +141,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           ),
                         ],
                       ),
-                      background: const Image(
-                        image: NetworkImage(
-                            'https://cdn1.vectorstock.com/i/thumb-large/62/60/default-avatar-photo-placeholder-profile-image-vector-21666260.jpg'),
+                      background: Image(
+                        image: NetworkImage(_userImageUrl != null
+                            ? _userImageUrl.toString()
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -161,10 +198,21 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    userListTile('Email', 'Email sub', 0, context),
-                    userListTile('Phone number', '4555', 1, context),
+                    userListTile('Email',
+                        _email != null ? _email.toString() : '', 0, context),
+                    userListTile(
+                        'Phone number',
+                        _phoneNumber != null ? _phoneNumber.toString() : '',
+                        1,
+                        context),
                     userListTile('Shipping address', '', 2, context),
-                    userListTile('joined date', 'date', 3, context),
+                    userListTile(
+                        'joined date',
+                        _joinedAt != null ? _joinedAt.toString() : '',
+                        3,
+                        context),
+                    userListTileLocation(
+                        'Location', 'Click for current location', 5, context),
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: userTitle('User settings'),
@@ -192,9 +240,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           splashColor: Theme.of(context).splashColor,
                           child: ListTile(
                             onTap: () {
-                              Navigator.canPop(context)
-                                  ? Navigator.pop(context)
-                                  : null;
+                              // Navigator.canPop(context)
+                              //     ? Navigator.pop(context)
+                              //     : null;
+                              _auth.signOut();
                             },
                             title: const Text('Logout'),
                             leading: const Icon(Icons.exit_to_app_rounded),
@@ -216,7 +265,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
     Icons.phone,
     Icons.local_shipping,
     Icons.watch_later,
-    Icons.exit_to_app_rounded
+    Icons.exit_to_app_rounded,
+    Icons.exit_to_app_rounded,
+    Icons.location_pin,
   ];
 
   Widget userListTile(
@@ -227,6 +278,29 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
         splashColor: Theme.of(context).splashColor,
         child: ListTile(
             onTap: () {},
+            title: Text(title),
+            subtitle: Text(subtitles),
+            leading: Icon(_userTileIcons[index])),
+      ),
+    );
+  }
+
+  Widget userListTileLocation(
+      String title, String subtitles, int index, BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        splashColor: Theme
+            .of(context)
+            .splashColor,
+        child: ListTile(
+            onTap: () {
+              //OVDE POKAZI LOKACIJA KOGA KE CLICK
+
+              Navigator.of(context).pushNamed(
+                  WishlistScreen.routeName
+              );
+            },
             title: Text(title),
             subtitle: Text(subtitles),
             leading: Icon(_userTileIcons[index])),

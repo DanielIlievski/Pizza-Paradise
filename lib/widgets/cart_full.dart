@@ -148,7 +148,7 @@ class _CartFullState extends State<CartFull> {
                                 fontWeight: FontWeight.w600,
                                 color: themeChange.darkTheme
                                     ? Colors.brown.shade900
-                                    : Theme.of(context).accentColor),
+                                    : Colors.deepPurple),
                           ),
                         ),
                       ],
@@ -160,7 +160,7 @@ class _CartFullState extends State<CartFull> {
                             style: TextStyle(
                                 color: themeChange.darkTheme
                                     ? Colors.brown.shade900
-                                    : Theme.of(context).accentColor)),
+                                    : Colors.deepPurple)),
 
                         const Spacer(),
 

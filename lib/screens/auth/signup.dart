@@ -2,12 +2,17 @@ import 'dart:io';
 
 //import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '/consts/colors.dart';
+import '/services/global_methods.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const routeName = '/SignUpScreen';
@@ -26,7 +31,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _fullName = '';
   late int _phoneNumber;
   File? _pickedImage;
+  late String url;
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  GlobalMethods _globalMethods = GlobalMethods();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -36,14 +45,69 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  // SUBMIT FORM FOR CREATING USER
+  void _submitForm() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
+    //initialize a date for fulfilling the 'joinedAt' field at the database
+    var date = DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
+
     if (isValid) {
       _formKey.currentState!.save();
+
+      //try-catch block for creating user with USERNAME and PASSWORD
+      try {
+        // add the profile image to FIRESTORE (database)
+        if (_pickedImage == null) {
+          _globalMethods.authErrorHandle("Please pick an image", context);
+        } else {
+          setState(() {
+            _isLoading = true;
+          });
+
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('usersImages')
+              .child(_fullName + '.jpg');
+          await ref.putFile(_pickedImage!);
+          url = await ref.getDownloadURL();
+
+          await _auth.createUserWithEmailAndPassword(
+              email: _emailAddress.toLowerCase().trim(),
+              password: _password.trim());
+          //create User from the currentUser
+          final User? user = _auth.currentUser;
+          final _uid = user?.uid;
+          user?.updateProfile(photoURL: url, displayName: _fullName);
+          user?.reload();
+
+          // ACCESS THE FIRESTORE (nosqsl database) to add new User to the collection
+          await FirebaseFirestore.instance.collection('users').doc(_uid).set({
+            'id': _uid,
+            'name': _fullName,
+            'email': _emailAddress,
+            'phoneNumber': _phoneNumber,
+            'imageUrl': url,
+            'joinedAt': formattedDate,
+            'createdAt': Timestamp.now(),
+          });
+          // after creating the user navigate to main page
+          Navigator.canPop(context) ? Navigator.pop(context) : null;
+        }
+      } catch (error) {
+        _globalMethods.authErrorHandle(error.toString(), context);
+        print('error occured ${error.toString()}');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
+  // IMPORT IMAGE FROM CAMERA
   void _pickImageCamera() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.camera);
@@ -54,6 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Navigator.pop(context);
   }
 
+  // IMPORT IMAGE FROM GALLERY
   void _pickImageGallery() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
@@ -64,6 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Navigator.pop(context);
   }
 
+  // REMOVE IMAGE
   void _remove() {
     setState(() {
       _pickedImage = null;
@@ -71,6 +137,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Navigator.pop(context);
   }
 
+  // MAIN WIDGET
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,281 +167,299 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
           ),
-          Column(
-            children: [
-              const SizedBox(
-                height: 30,
-              ),
-              Stack(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 30, horizontal: 30),
-                    child: CircleAvatar(
-                      radius: 71,
-                      backgroundColor: ColorsConsts.gradientLEnd,
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Stack(
+                  children: [
+                    Container(
+                      margin:
+                          EdgeInsets.symmetric(vertical: 30, horizontal: 30),
                       child: CircleAvatar(
-                        radius: 65,
-                        backgroundColor: ColorsConsts.gradientFEnd,
-                        backgroundImage: _pickedImage == null
-                            ? null
-                            : FileImage(_pickedImage!),
+                        radius: 71,
+                        backgroundColor: ColorsConsts.gradientLEnd,
+                        child: CircleAvatar(
+                          radius: 65,
+                          backgroundColor: ColorsConsts.gradientFEnd,
+                          backgroundImage: _pickedImage == null
+                              ? null
+                              : FileImage(_pickedImage!),
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                      top: 120,
-                      left: 110,
-                      child: RawMaterialButton(
-                        elevation: 10,
-                        fillColor: ColorsConsts.gradientLEnd,
-                        padding: const EdgeInsets.all(15.0),
-                        shape: const CircleBorder(),
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                    'Choose option',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: ColorsConsts.gradientLStart),
-                                  ),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children: [
-                                        InkWell(
-                                          onTap: _pickImageCamera,
-                                          splashColor: Colors.purpleAccent,
-                                          child: Row(
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.all(8.0),
-                                                child: Icon(
-                                                  Icons.camera,
-                                                  color: Colors.purpleAccent,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Camera',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: ColorsConsts.title),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: _pickImageGallery,
-                                          splashColor: Colors.purpleAccent,
-                                          child: Row(
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.all(8.0),
-                                                child: Icon(
-                                                  Icons.image,
-                                                  color: Colors.purpleAccent,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Gallery',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: ColorsConsts.title),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: _remove,
-                                          splashColor: Colors.purpleAccent,
-                                          child: Row(
-                                            children: const [
-                                              Padding(
-                                                padding: EdgeInsets.all(8.0),
-                                                child: Icon(
-                                                  Icons.remove_circle,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Remove',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.red),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                    Positioned(
+                        top: 120,
+                        left: 110,
+                        child: RawMaterialButton(
+                          elevation: 10,
+                          fillColor: ColorsConsts.gradientLEnd,
+                          child: Icon(Icons.add_a_photo),
+                          padding: EdgeInsets.all(15.0),
+                          shape: CircleBorder(),
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                      'Choose option',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorsConsts.gradientLStart),
                                     ),
-                                  ),
-                                );
-                              });
-                        },
-                        child: const Icon(Icons.add_a_photo),
-                      ))
-                ],
-              ),
-              Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: TextFormField(
-                          key: const ValueKey('name'),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'name cannot be null';
-                            }
-                            return null;
+                                    content: SingleChildScrollView(
+                                      child: ListBody(
+                                        children: [
+                                          InkWell(
+                                            onTap: _pickImageCamera,
+                                            splashColor: Colors.purpleAccent,
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Icon(
+                                                    Icons.camera,
+                                                    color: Colors.purpleAccent,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Camera',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          ColorsConsts.title),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: _pickImageGallery,
+                                            splashColor: Colors.purpleAccent,
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Icon(
+                                                    Icons.image,
+                                                    color: Colors.purpleAccent,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Gallery',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          ColorsConsts.title),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: _remove,
+                                            splashColor: Colors.purpleAccent,
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Icon(
+                                                    Icons.remove_circle,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Remove',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.red),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
                           },
-                          textInputAction: TextInputAction.next,
-                          onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(_emailFocusNode),
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                              border: const UnderlineInputBorder(),
-                              filled: true,
-                              prefixIcon: const Icon(Icons.person),
-                              labelText: 'Full name',
-                              fillColor: Theme.of(context).backgroundColor),
-                          onSaved: (value) {
-                            _fullName = value!;
-                          },
+                        ))
+                  ],
+                ),
+                Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: TextFormField(
+                            key: ValueKey('name'),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'name cannot be null';
+                              }
+                              return null;
+                            },
+                            textInputAction: TextInputAction.next,
+                            onEditingComplete: () => FocusScope.of(context)
+                                .requestFocus(_emailFocusNode),
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                                border: const UnderlineInputBorder(),
+                                filled: true,
+                                prefixIcon: Icon(Icons.person),
+                                labelText: 'Full name',
+                                fillColor: Theme.of(context).backgroundColor),
+                            onSaved: (value) {
+                              _fullName = value!;
+                            },
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: TextFormField(
-                          key: const ValueKey('email'),
-                          focusNode: _emailFocusNode,
-                          validator: (value) {
-                            if (value!.isEmpty || !value.contains('@')) {
-                              return 'Please enter a valid email address';
-                            }
-                            return null;
-                          },
-                          textInputAction: TextInputAction.next,
-                          onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(_passwordFocusNode),
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                              border: const UnderlineInputBorder(),
-                              filled: true,
-                              prefixIcon: const Icon(Icons.email),
-                              labelText: 'Email Address',
-                              fillColor: Theme.of(context).backgroundColor),
-                          onSaved: (value) {
-                            _emailAddress = value!;
-                          },
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: TextFormField(
+                            key: ValueKey('email'),
+                            focusNode: _emailFocusNode,
+                            validator: (value) {
+                              if (value!.isEmpty || !value.contains('@')) {
+                                return 'Please enter a valid email address';
+                              }
+                              return null;
+                            },
+                            textInputAction: TextInputAction.next,
+                            onEditingComplete: () => FocusScope.of(context)
+                                .requestFocus(_passwordFocusNode),
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                                border: const UnderlineInputBorder(),
+                                filled: true,
+                                prefixIcon: Icon(Icons.email),
+                                labelText: 'Email Address',
+                                fillColor: Theme.of(context).backgroundColor),
+                            onSaved: (value) {
+                              _emailAddress = value!;
+                            },
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: TextFormField(
-                          key: const ValueKey('Password'),
-                          validator: (value) {
-                            if (value!.isEmpty || value.length < 7) {
-                              return 'Please enter a valid Password';
-                            }
-                            return null;
-                          },
-                          keyboardType: TextInputType.emailAddress,
-                          focusNode: _passwordFocusNode,
-                          decoration: InputDecoration(
-                              border: const UnderlineInputBorder(),
-                              filled: true,
-                              prefixIcon: const Icon(Icons.lock),
-                              suffixIcon: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _obscureText = !_obscureText;
-                                  });
-                                },
-                                child: Icon(_obscureText
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
-                              ),
-                              labelText: 'Password',
-                              fillColor: Theme.of(context).backgroundColor),
-                          onSaved: (value) {
-                            _password = value!;
-                          },
-                          obscureText: _obscureText,
-                          onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(_phoneNumberFocusNode),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: TextFormField(
-                          key: const ValueKey('phone number'),
-                          focusNode: _phoneNumberFocusNode,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter a valid phone number';
-                            }
-                            return null;
-                          },
-                          textInputAction: TextInputAction.next,
-                          onEditingComplete: _submitForm,
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                              border: const UnderlineInputBorder(),
-                              filled: true,
-                              prefixIcon: const Icon(Icons.phone_android),
-                              labelText: 'Phone number',
-                              fillColor: Theme.of(context).backgroundColor),
-                          onSaved: (value) {
-                            _phoneNumber = int.parse(value!);
-                          },
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                              style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  side: BorderSide(
-                                      color: ColorsConsts.backgroundColor),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: TextFormField(
+                            key: ValueKey('Password'),
+                            validator: (value) {
+                              if (value!.isEmpty || value!.length < 7) {
+                                return 'Please enter a valid Password';
+                              }
+                              return null;
+                            },
+                            keyboardType: TextInputType.emailAddress,
+                            focusNode: _passwordFocusNode,
+                            decoration: InputDecoration(
+                                border: const UnderlineInputBorder(),
+                                filled: true,
+                                prefixIcon: Icon(Icons.lock),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _obscureText = !_obscureText;
+                                    });
+                                  },
+                                  child: Icon(_obscureText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off),
                                 ),
-                              )),
-                              onPressed: _submitForm,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Text(
-                                    'Sign up',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Icon(
-                                    Feather.user,
-                                    size: 18,
-                                  )
-                                ],
-                              )),
-                          const SizedBox(width: 20),
-                        ],
-                      ),
-                    ],
-                  ))
-            ],
+                                labelText: 'Password',
+                                fillColor: Theme.of(context).backgroundColor),
+                            onSaved: (value) {
+                              _password = value!;
+                            },
+                            obscureText: _obscureText,
+                            onEditingComplete: () => FocusScope.of(context)
+                                .requestFocus(_phoneNumberFocusNode),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: TextFormField(
+                            key: ValueKey('phone number'),
+                            focusNode: _phoneNumberFocusNode,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter a valid phone number';
+                              }
+                              return null;
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            textInputAction: TextInputAction.next,
+                            onEditingComplete: _submitForm,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                                border: const UnderlineInputBorder(),
+                                filled: true,
+                                prefixIcon: Icon(Icons.phone_android),
+                                labelText: 'Phone number',
+                                fillColor: Theme.of(context).backgroundColor),
+                            onSaved: (value) {
+                              _phoneNumber = int.parse(value!);
+                            },
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 10),
+                            _isLoading
+                                ? CircularProgressIndicator()
+                                : ElevatedButton(
+                                    style: ButtonStyle(
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                        side: BorderSide(
+                                            color:
+                                                ColorsConsts.backgroundColor),
+                                      ),
+                                    )),
+                                    onPressed: _submitForm,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Sign up',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 17),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Feather.user,
+                                          size: 18,
+                                        )
+                                      ],
+                                    )),
+                            SizedBox(width: 20),
+                          ],
+                        ),
+                      ],
+                    ))
+              ],
+            ),
           ),
         ],
       ),

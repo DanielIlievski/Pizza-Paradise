@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '/models/product.dart';
 import '/widgets/feeds_products.dart';
@@ -38,11 +38,12 @@ class FeedScreen extends StatelessWidget {
           ),
           actions: [
             Consumer<FavsProvider>(
-              builder: (_, favs, ch) => Badge(
-                badgeColor: ColorsConsts.cartBadgeColor,
-                animationType: BadgeAnimationType.slide,
-                toAnimate: true,
-                position: BadgePosition.topEnd(top: 5, end: 7),
+              builder: (_, favs, ch) => badges.Badge(
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: ColorsConsts.cartBadgeColor
+                ),
+                badgeAnimation: const badges.BadgeAnimation.slide(),
+                position: badges.BadgePosition.topEnd(top: 5, end: 7),
                 badgeContent: Text(
                   favs.getFavsItems.length.toString(),
                   style: const TextStyle(color: Colors.white),
@@ -59,11 +60,12 @@ class FeedScreen extends StatelessWidget {
               ),
             ),
             Consumer<CartProvider>(
-              builder: (_, cart, ch) => Badge(
-                badgeColor: ColorsConsts.cartBadgeColor,
-                animationType: BadgeAnimationType.slide,
-                toAnimate: true,
-                position: BadgePosition.topEnd(top: 5, end: 7),
+              builder: (_, cart, ch) => badges.Badge(
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: ColorsConsts.cartBadgeColor,
+                ),
+                badgeAnimation: const badges.BadgeAnimation.slide(),
+                position: badges.BadgePosition.topEnd(top: 5, end: 7),
                 badgeContent: Text(
                   cart.getCartItems.length.toString(),
                   style: const TextStyle(color: Colors.white),

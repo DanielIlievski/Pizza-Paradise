@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 
 import '/inner_screens/product_details.dart';
@@ -51,13 +51,14 @@ class _FeedProductsState extends State<FeedProducts> {
                         // bottom: 0,
                         // right: 5,
                         // top: 5,
-                        child: Badge(
-                          alignment: Alignment.center,
-                          toAnimate: true,
-                          shape: BadgeShape.square,
-                          badgeColor: Colors.pink,
-                          borderRadius: const BorderRadius.only(
-                              bottomRight: Radius.circular(8)),
+                        child: badges.Badge(
+                          badgeStyle: const badges.BadgeStyle(
+                            shape: badges.BadgeShape.square,
+                            badgeColor: Colors.pink,
+                            borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(8)),
+                          ),
+                          position: badges.BadgePosition.center(),
                           badgeContent: const Text('New',
                               style: TextStyle(color: Colors.white)),
                         ),

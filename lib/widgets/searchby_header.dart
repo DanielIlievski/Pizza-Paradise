@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 
 import '/consts/colors.dart';
@@ -64,9 +64,11 @@ class SearchByHeader extends SliverPersistentHeaderDelegate {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Consumer<FavsProvider>(
-                  builder: (_, favs, ch) => Badge(
-                    badgeColor: ColorsConsts.favBadgeColor,
-                    position: BadgePosition.topEnd(top: 5, end: 7),
+                  builder: (_, favs, ch) => badges.Badge(
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: ColorsConsts.favBadgeColor,
+                    ),
+                    position: badges.BadgePosition.topEnd(top: 5, end: 7),
                     badgeContent: Text(
                       favs.getFavsItems.length.toString(),
                       style: TextStyle(color: ColorsConsts.white),
@@ -81,9 +83,11 @@ class SearchByHeader extends SliverPersistentHeaderDelegate {
                   ),
                 ),
                 Consumer<CartProvider>(
-                  builder: (_, cart, ch) => Badge(
-                    badgeColor: ColorsConsts.cartBadgeColor,
-                    position: BadgePosition.topEnd(top: 5, end: 7),
+                  builder: (_, cart, ch) => badges.Badge(
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: ColorsConsts.cartBadgeColor,
+                    ),
+                    position: badges.BadgePosition.topEnd(top: 5, end: 7),
                     badgeContent: Text(
                       cart.getCartItems.length.toString(),
                       style: TextStyle(color: ColorsConsts.white),
