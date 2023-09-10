@@ -12,9 +12,9 @@ class GlobalMethods{
             Padding(
               padding: const EdgeInsets.only(right:  6.0),
               child: Image.network(
-                'https://cdn-icons.flaticon.com/png/512/4201/premium/4201973.png?token=exp=1647989894~hmac=8d740cf1be258afd9f7ec9fce37c5aa3',
-                height: 20,
-                width: 20,),
+                'https://img.icons8.com/emoji/48/warning-emoji.png',
+                height: 30,
+                width: 30,),
             ),
 
             Padding(

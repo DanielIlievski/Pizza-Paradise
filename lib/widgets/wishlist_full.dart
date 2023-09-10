@@ -94,10 +94,11 @@ class _WishlistFullState extends State<WishlistFull> {
           ),
           onPressed: () => {
             globalMethods.showDialogg(
-                'Remove from wishlist',
-                'This product will be removed from your wishlist!',
-                () => favsProvider.removeItem(productId),
-                context),
+              'Remove from wishlist',
+              'This product will be removed from your wishlist!',
+              () => favsProvider.removeItem(productId),
+              context,
+            ),
           },
         ),
       ),

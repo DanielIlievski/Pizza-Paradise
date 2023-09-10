@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:badges/badges.dart';
 
 import '/provider/dark_theme_provider.dart';
 import '/consts/colors.dart';
 import '/consts/my_icons.dart';
-import '/models/product.dart';
 import '/screens/cart.dart';
 import '/screens/wishlist.dart';
 import '/widgets/feeds_products.dart';
 import '/provider/products.dart';
 import '/provider/favs_provider.dart';
+import '/provider/cart_provider.dart';
 
 class ProductDetails extends StatefulWidget {
   static const routeName = '/ProductDetails';
@@ -24,12 +25,14 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     final themeState = Provider.of<DarkThemeProvider>(context);
-    final productsProvider = Provider.of<Products>(context);
+    final productsData = Provider.of<Products>(context);
     final favsProvider = Provider.of<FavsProvider>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
 
-    List<Product> _products = productsProvider.products;
     final productId = ModalRoute.of(context)!.settings.arguments as String;
-    final prodAttr = productsProvider.findById(productId);
+    print('productId $productId');
+    final prodAttr = productsData.findById(productId);
+    final productsList = productsData.products;
 
     return Scaffold(
       body: Stack(
@@ -164,7 +167,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       _details(themeState.darkTheme, 'Category: ',
                           prodAttr.productCategoryName),
                       _details(themeState.darkTheme, 'Popularity: ',
-                          prodAttr.isPopular ? 'Popular' : 'Not popular'),
+                          prodAttr.isPopular ? 'Popular' : 'Barely known'),
                       const SizedBox(
                         height: 15,
                       ),
@@ -240,7 +243,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext ctx, int index) {
                       return ChangeNotifierProvider.value(
-                          value: _products[index], child: FeedProducts());
+                          value: productsList[index], child: FeedProducts());
                     },
                   ),
                 ),
@@ -256,31 +259,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                 elevation: 0,
                 centerTitle: true,
                 title: const Text(
-                  "DETAILS",
+                  "DETAIL",
                   style:
                       TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal),
                 ),
                 actions: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                      MyAppIcons.wishlist,
-                      color: ColorsConsts.favColor,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(WishlistScreen.routeName);
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      MyAppIcons.cart,
-                      color: ColorsConsts.cartColor,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(CartScreen.routeName);
-                    },
-                  ),
-
-                  /*Consumer<FavsProvider>(
+                  Consumer<FavsProvider>(
                     builder: (_, favs, ch) => Badge(
                       badgeColor: ColorsConsts.cartBadgeColor,
                       animationType: BadgeAnimationType.slide,
@@ -301,8 +285,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         },
                       ),
                     ),
-                  ),*/
-                  /*Consumer<CartProvider>(
+                  ),
+                  Consumer<CartProvider>(
                     builder: (_, cart, ch) => Badge(
                       badgeColor: ColorsConsts.cartBadgeColor,
                       animationType: BadgeAnimationType.slide,
@@ -310,7 +294,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       position: BadgePosition.topEnd(top: 5, end: 7),
                       badgeContent: Text(
                         cart.getCartItems.length.toString(),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                       child: IconButton(
                         icon: Icon(
@@ -322,7 +306,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         },
                       ),
                     ),
-                  )*/
+                  ),
                 ]),
           ),
           Align(
@@ -338,9 +322,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                               side: BorderSide.none),
                           backgroundColor: Colors.redAccent.shade400,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                      onPressed: () {},
+                      onPressed:
+                          cartProvider.getCartItems.containsKey(productId)
+                              ? () {}
+                              : () {
+                                  cartProvider.addProductToCart(
+                                      productId,
+                                      prodAttr.price,
+                                      prodAttr.title,
+                                      prodAttr.imageUrl);
+                                },
                       child: Text(
-                        'Add to Cart'.toUpperCase(),
+                        cartProvider.getCartItems.containsKey(productId)
+                            ? 'In cart'
+                            : 'Add to Cart'.toUpperCase(),
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                       ),

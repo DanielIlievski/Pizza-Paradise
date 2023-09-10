@@ -8,7 +8,12 @@ import '/consts/theme_data.dart';
 import '/screens/cart.dart';
 import '/screens/feeds.dart';
 import '/screens/wishlist.dart';
+import '/screens/auth/login.dart';
+import '/screens/auth/signup.dart';
+import '/screens/landing_page.dart';
+import '/screens/main_screen.dart';
 import '/inner_screens/categories_feed.dart';
+import 'inner_screens/upload_product_form.dart';
 import '/provider/products.dart';
 import '/provider/cart_provider.dart';
 import '/provider/favs_provider.dart';
@@ -60,7 +65,7 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             title: 'Pizza Paradise',
             theme: Styles.themeData(themeChangeProvider.darkTheme, context),
-            home: BottomBarScreen(),
+            home: MainScreens(),
             //initialRoute: '/',
             routes: {
               //   '/': (ctx) => LandingPage(),
@@ -71,6 +76,10 @@ class _MyAppState extends State<MyApp> {
               WishlistScreen.routeName: (ctx) => WishlistScreen(),
               ProductDetails.routeName: (ctx) => ProductDetails(),
               CategoriesFeedScreen.routeName: (ctx) => CategoriesFeedScreen(),
+              LoginScreen.routeName: (ctx) => LoginScreen(),
+              SignUpScreen.routeName: (ctx) => SignUpScreen(),
+              BottomBarScreen.routeName: (ctx) => BottomBarScreen(),
+              UploadProductForm.routeName: (ctx) => UploadProductForm(),
             },
           );
         }));

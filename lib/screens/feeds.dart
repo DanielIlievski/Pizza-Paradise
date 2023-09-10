@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:badges/badges.dart';
 
 import '/models/product.dart';
 import '/widgets/feeds_products.dart';
 import '/provider/products.dart';
+import '/consts/colors.dart';
+import '/consts/my_icons.dart';
+import '/provider/cart_provider.dart';
+import '/provider/favs_provider.dart';
+import '/screens/wishlist.dart';
+import '/screens/cart.dart';
 
 class FeedScreen extends StatelessWidget {
   static const routeName = '/FeedScreen';
@@ -23,27 +30,68 @@ class FeedScreen extends StatelessWidget {
 
     return Scaffold(
         // we use Scaffold because we want to return a screen
-        body:
-            /*StaggeredGridView.countBuilder(
-        crossAxisCount: 6,
-        itemCount: 8,
-        itemBuilder: (BuildContext context, int index) => FeedProducts(),
-        staggeredTileBuilder: (int index) =>
-        new StaggeredTile.count(3, index.isEven ? 4 : 5),
-        mainAxisSpacing: 8.0,
-        crossAxisSpacing: 6.0,
-      )*/
-            GridView.count(
-      crossAxisCount: 2,
-      childAspectRatio: 240 / 420,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      children: List.generate(productsList.length, (index) {
-        return ChangeNotifierProvider.value(
-          value: productsList[index],
-          child: FeedProducts(),
-        );
-      }),
-    ));
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).cardColor,
+          title: const Text(
+            'Feeds',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            Consumer<FavsProvider>(
+              builder: (_, favs, ch) => Badge(
+                badgeColor: ColorsConsts.cartBadgeColor,
+                animationType: BadgeAnimationType.slide,
+                toAnimate: true,
+                position: BadgePosition.topEnd(top: 5, end: 7),
+                badgeContent: Text(
+                  favs.getFavsItems.length.toString(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    MyAppIcons.wishlist,
+                    color: ColorsConsts.favColor,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(WishlistScreen.routeName);
+                  },
+                ),
+              ),
+            ),
+            Consumer<CartProvider>(
+              builder: (_, cart, ch) => Badge(
+                badgeColor: ColorsConsts.cartBadgeColor,
+                animationType: BadgeAnimationType.slide,
+                toAnimate: true,
+                position: BadgePosition.topEnd(top: 5, end: 7),
+                badgeContent: Text(
+                  cart.getCartItems.length.toString(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    MyAppIcons.cart,
+                    color: ColorsConsts.cartColor,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(CartScreen.routeName);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 240 / 420,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          children: List.generate(productsList.length, (index) {
+            return ChangeNotifierProvider.value(
+              value: productsList[index],
+              child: FeedProducts(),
+            );
+          }),
+        ));
   }
 }

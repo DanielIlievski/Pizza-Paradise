@@ -103,6 +103,10 @@ class Products with ChangeNotifier {
     return _products.firstWhere((element) => element.id == productId);
   }
 
-
-
+  List<Product> searchQuery(String searchText) {
+    return _products
+        .where((element) =>
+        element.title.toLowerCase().contains(searchText.toLowerCase()))
+        .toList();
+  }
 }

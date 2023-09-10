@@ -34,7 +34,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         'title': 'Feeds Screen'
       },
       {
-        'page': SearchScreen(),
+        'page': Search(),
         'title': 'Search Screen'
       },
       {

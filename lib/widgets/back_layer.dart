@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 import '/consts/colors.dart';
 import '/consts/my_icons.dart';
 import '/screens/cart.dart';
 import '/screens/feeds.dart';
-import 'package:flutter/material.dart';
+import '/inner_screens/upload_product_form.dart';
 
 class BackLayerMenu extends StatelessWidget {
   @override
@@ -124,7 +126,7 @@ class BackLayerMenu extends StatelessWidget {
                 }, 'Wishlist', 2),
                 const SizedBox(height: 10.0),
                 content(context, () {
-                  navigateTo(context, FeedScreen.routeName);
+                  navigateTo(context, UploadProductForm.routeName);
                 }, 'Upload a new product', 3),
               ],
             ),
