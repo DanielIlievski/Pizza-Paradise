@@ -35,7 +35,7 @@ class CartScreen extends StatelessWidget {
               backgroundColor: Theme.of(context).backgroundColor,
               title: Text(
                 'Cart (${cartProvider.getCartItems.length}) ',
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
               ),
               actions: [
                 IconButton(
@@ -46,7 +46,7 @@ class CartScreen extends StatelessWidget {
                         () => cartProvider.clearCart(),
                         context);
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     MyAppIcons.trash,
                     color: Colors.black,
                   ),
@@ -54,7 +54,7 @@ class CartScreen extends StatelessWidget {
               ],
             ),
             body: Container(
-              margin: EdgeInsets.only(bottom: 60),
+              margin: const EdgeInsets.only(bottom: 60),
               child: ListView.builder(
                   itemCount: cartProvider.getCartItems.length,
                   itemBuilder: (BuildContext ctx, int index) {

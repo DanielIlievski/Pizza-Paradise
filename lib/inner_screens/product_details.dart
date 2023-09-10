@@ -9,6 +9,7 @@ import '/screens/cart.dart';
 import '/screens/wishlist.dart';
 import '/widgets/feeds_products.dart';
 import '/provider/products.dart';
+import '/provider/favs_provider.dart';
 
 class ProductDetails extends StatefulWidget {
   static const routeName = '/ProductDetails';
@@ -24,8 +25,9 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     final themeState = Provider.of<DarkThemeProvider>(context);
     final productsProvider = Provider.of<Products>(context);
-    List<Product> _products = productsProvider.products;
+    final favsProvider = Provider.of<FavsProvider>(context);
 
+    List<Product> _products = productsProvider.products;
     final productId = ModalRoute.of(context)!.settings.arguments as String;
     final prodAttr = productsProvider.findById(productId);
 
@@ -389,11 +391,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                     height: 50,
                     child: InkWell(
                       splashColor: ColorsConsts.favColor,
-                      onTap: () {},
-                      child: const Center(
+                      onTap: () {
+                        favsProvider.addAndRmoveFromFav(productId,
+                            prodAttr.price, prodAttr.title, prodAttr.imageUrl);
+                      },
+                      child: Center(
                         child: Icon(
-                          Icons.favorite,
-                          color: Colors.red,
+                          favsProvider.getFavsItems.containsKey(productId)
+                              ? Icons.favorite
+                              : MyAppIcons.wishlist,
+                          color:
+                              favsProvider.getFavsItems.containsKey(productId)
+                                  ? Colors.red
+                                  : ColorsConsts.white,
                         ),
                       ),
                     ),

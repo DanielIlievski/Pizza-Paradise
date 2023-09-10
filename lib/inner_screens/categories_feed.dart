@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 import '/models/product.dart';
 import '/provider/products.dart';
 import '/widgets/feeds_products.dart';
@@ -8,8 +8,6 @@ import 'package:provider/provider.dart';
 class CategoriesFeedScreen extends StatelessWidget {
 
   static const routeName = '/CategoriesFeedScreen';
-
-
 
   @override
   Widget build(BuildContext context) {

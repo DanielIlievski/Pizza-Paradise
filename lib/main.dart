@@ -11,6 +11,7 @@ import '/screens/wishlist.dart';
 import '/inner_screens/categories_feed.dart';
 import '/provider/products.dart';
 import '/provider/cart_provider.dart';
+import '/provider/favs_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,6 +50,9 @@ class _MyAppState extends State<MyApp> {
           }),
           ChangeNotifierProvider(
             create: (_) => CartProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => FavsProvider(),
           ),
         ],
         child:
