@@ -15,10 +15,7 @@ class CartEmpty extends StatelessWidget {
           margin: const EdgeInsets.only(top: 80),
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.4,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: AssetImage('/images/emptycart.png'))),
+          child: Image.network('https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/emptycart.png?alt=media&token=0a06da0b-8eb8-46ca-8e07-b427d10a4c88'),
         ),
         Text(
           'Your cart is empty',

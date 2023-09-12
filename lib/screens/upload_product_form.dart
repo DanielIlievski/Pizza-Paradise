@@ -1,9 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
+
+import '/services/global_methods.dart';
 import '/consts/colors.dart';
 
 class UploadProductForm extends StatefulWidget {
@@ -15,6 +20,11 @@ class UploadProductForm extends StatefulWidget {
 
 class _UploadProductFormState extends State<UploadProductForm> {
   final _formKey = GlobalKey<FormState>();
+
+  late String url;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  GlobalMethods _globalMethods = GlobalMethods();
+  bool _isLoading = false;
 
   var _productTitle = '';
   var _productPrice = '';
@@ -49,18 +59,73 @@ class _UploadProductFormState extends State<UploadProductForm> {
     );
   }
 
-  void _trySubmit() {
+  void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
+    // if (isValid) {
+    //   _formKey.currentState!.save();
+    //   print(_productTitle);
+    //   print(_productPrice);
+    //   print(_productCategory);
+    //   print(_productDescription);
+    //   print(_productQuantity);
+    //   // Use those values to send our auth request ...
+    // }
+
     if (isValid) {
       _formKey.currentState!.save();
-      print(_productTitle);
-      print(_productPrice);
-      print(_productCategory);
-      print(_productDescription);
-      print(_productQuantity);
-      // Use those values to send our auth request ...
+      //try-catch block for creating user with USERNAME and PASSWORD
+      try {
+        // add the profile image to FIRESTORE (database)
+        if (_pickedImage == null) {
+          _globalMethods.authErrorHandle("Please pick an image", context);
+        } else {
+          setState(() {
+            _isLoading = true;
+          });
+
+          //ADD IMAGE FOR THE PRODUCT
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('productImages')
+              .child('$_productTitle.jpg');
+          await ref.putFile(_pickedImage!);
+          url = await ref.getDownloadURL();
+
+          //create User from the currentUser
+          final User? user = _auth.currentUser;
+          final _uid = user?.uid;
+
+          //library to randomly generate ID for the products
+          var uuid = Uuid();
+          final productId = uuid.v4();
+          // ACCESS THE FIRESTORE (nosqsl database) to add new product to the collection
+          await FirebaseFirestore.instance
+              .collection('products')
+              .doc(productId)
+              .set({
+            'productId': productId,
+            'productTitle': _productTitle,
+            'price': _productPrice,
+            'productImage': url,
+            'productCategory': _productCategory,
+            'productDescription': _productDescription,
+            'productQuantity': _productQuantity,
+            'userId': _uid,
+            'createdAt': Timestamp.now(),
+          });
+          // after creating the user navigate to main page
+          Navigator.canPop(context) ? Navigator.pop(context) : null;
+        }
+      } catch (error) {
+        _globalMethods.authErrorHandle(error.toString(), context);
+        print('error occured ${error.toString()}');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -120,14 +185,18 @@ class _UploadProductFormState extends State<UploadProductForm> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
-              children: const <Widget>[
+              children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.only(right: 2),
-                  child: Text('Upload',
+                  padding: const EdgeInsets.only(right: 2),
+                  child: _isLoading ? Center(child: Container(
+                      height: 40,
+                      width: 40,
+                      child: const CircularProgressIndicator()))
+                      :  const Text('Upload',
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.center),
                 ),
-                GradientIcon(
+                const GradientIcon(
                   Feather.upload,
                   20,
                   LinearGradient(

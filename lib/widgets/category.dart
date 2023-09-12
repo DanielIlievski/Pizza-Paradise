@@ -15,23 +15,28 @@ class _CategoryWidgetState extends State<CategoryWidget> {
   List<Map<String, Object>> categories = [
     {
       'categoryName': 'Pizza',
-      'categoryImagesPath': 'images/pizza1.jpg',
+      'categoryImagesPath':
+          'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/pizza1.jpg?alt=media&token=2ee39ff9-71db-4d24-bc71-fbb45157b2f6',
     },
     {
       'categoryName': 'Pasta',
-      'categoryImagesPath': 'images/pasta1.jpg',
+      'categoryImagesPath':
+          'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/pasta1.jpg?alt=media&token=a80c4219-3eb1-4e28-8cc9-67bea807a04b',
     },
     {
       'categoryName': 'Pastrmajlija',
-      'categoryImagesPath': 'images/pasta2.jpg',
+      'categoryImagesPath':
+          'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/pastrmajlija.jpg?alt=media&token=cdcf7076-9628-49a0-b2c6-ed0d6bc34861',
     },
     {
-      'categoryName': 'Specijaliteti',
-      'categoryImagesPath': 'images/pasta3.jpg',
+      'categoryName': 'Specialities',
+      'categoryImagesPath':
+          'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/pasta3.jpg?alt=media&token=b5fb50c0-b6b8-4c72-aebf-f3b086f0aced',
     },
     {
-      'categoryName': 'Deserti',
-      'categoryImagesPath': 'images/pasta3.jpg',
+      'categoryName': 'Desserts',
+      'categoryImagesPath':
+          'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/blagapizza.jpg?alt=media&token=c8299600-d01f-43c7-bf60-a7e259b21259',
     },
   ];
 
@@ -53,15 +58,19 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                 arguments: '${categories[widget.index]['categoryName']}');
           },
           child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                //vo videata go nemat ova as String na kraj ama mi davase error deka od Object ne mojt cast vo String
-                //stack overflow: https://stackoverflow.com/questions/67853012/how-can-i-resolve-the-argument-type-object-cant-be-assigned-to-the-paramete
-                image: DecorationImage(
-                  image: AssetImage(
-                      categories[widget.index]['categoryImagesPath'] as String),
-                  fit: BoxFit.cover,
-                )),
+            child: Image.network(
+              categories[widget.index]['categoryImagesPath'] as String,
+              fit: BoxFit.cover,
+            ),
+            // decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(10),
+            //     //vo videata go nemat ova as String na kraj ama mi davase error deka od Object ne mojt cast vo String
+            //     //stack overflow: https://stackoverflow.com/questions/67853012/how-can-i-resolve-the-argument-type-object-cant-be-assigned-to-the-paramete
+            //     image: DecorationImage(
+            //       image: AssetImage(
+            //           categories[widget.index]['categoryImagesPath'] as String),
+            //       fit: BoxFit.cover,
+            //     )),
             margin: const EdgeInsets.symmetric(horizontal: 10),
             width: 150,
             height: 150,
@@ -77,11 +86,10 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                 color: Theme.of(context).backgroundColor,
                 //isto i ovde kako gore  errorot
                 //NE E RESEN OVOJ ERROR (NE GO POKAZHUVA IMETO VO APPPLIKACIJATA)
-                child: Text(categories[widget.index]['categoryName'].toString(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
+                child: Text(categories[widget.index]['categoryName'] as String,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
                       fontSize: 18,
-                      color: Theme.of(context).backgroundColor,
                     )))),
       ],
     );

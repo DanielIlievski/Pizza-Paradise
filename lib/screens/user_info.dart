@@ -208,7 +208,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         _phoneNumber != null ? _phoneNumber.toString() : '',
                         1,
                         context),
-                    userListTile('Shipping address', '', 2, context),
+                    // userListTile('Shipping address', '', 2, context),
                     userListTile(
                         'joined date',
                         _joinedAt != null ? _joinedAt.toString() : '',
@@ -340,7 +340,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                             padding: const EdgeInsets.only(right: 6.0),
                             child: Image.network(
                               //location picture PIN
-                              'https://img.icons8.com/3d-fluency/94/location.png',
+                              'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/location.png?alt=media&token=0e1bcc33-142c-463d-83e0-e2a8b47060e9',
                               height: 20,
                               width: 20,
                             ),

@@ -15,7 +15,7 @@ import '/screens/landing_page.dart';
 import '/screens/main_screen.dart';
 import '/screens/user_state.dart';
 import '/inner_screens/categories_feed.dart';
-import 'inner_screens/upload_product_form.dart';
+import 'screens/upload_product_form.dart';
 import '/provider/products.dart';
 import '/provider/cart_provider.dart';
 import '/provider/favs_provider.dart';

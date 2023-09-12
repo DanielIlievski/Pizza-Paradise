@@ -4,7 +4,7 @@ import '/consts/colors.dart';
 import '/consts/my_icons.dart';
 import '/screens/cart.dart';
 import '/screens/feeds.dart';
-import '/inner_screens/upload_product_form.dart';
+import '/screens/upload_product_form.dart';
 
 class BackLayerMenu extends StatelessWidget {
   @override

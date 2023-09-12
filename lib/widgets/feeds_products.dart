@@ -37,10 +37,7 @@ class _FeedProductsState extends State<FeedProducts> {
                         borderRadius: BorderRadius.circular(2),
                         child: Container(
                           width: double.infinity,
-                          constraints: BoxConstraints(
-                              minHeight: 100,
-                              maxHeight:
-                                  MediaQuery.of(context).size.height * 0.3),
+                          height: MediaQuery.of(context).size.height * 0.3,
                           child: Image.network(
                             productsAttributes.imageUrl,
                             //   fit: BoxFit.fitWidth,
@@ -85,6 +82,8 @@ class _FeedProductsState extends State<FeedProducts> {
                           color: Colors.black,
                           fontWeight: FontWeight.w600),
                     ),
+
+                    // PRICE OF PRODUCT
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
@@ -97,11 +96,13 @@ class _FeedProductsState extends State<FeedProducts> {
                             fontWeight: FontWeight.w900),
                       ),
                     ),
+
+                    //  DESCRIPTION
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${productsAttributes.quantity}',
+                          productsAttributes.description,
                           style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,

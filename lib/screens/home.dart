@@ -3,6 +3,7 @@ import 'package:backdrop/backdrop.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '/consts/colors.dart';
 import '/widgets/back_layer.dart';
@@ -20,21 +21,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List _carouselImages = [
-    'assets/images/carousel1.jpg',
-    'assets/images/carousel2.jpg',
-    'assets/images/carousel3.jpg'
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/carousel1.jpg?alt=media&token=4f57a033-2245-4c9d-9377-2adffc06d4c8',
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/carousel2.jpg?alt=media&token=9f3882cb-91d3-442e-87ac-1d9dbe4f4920',
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/carousel3.jpg?alt=media&token=6cefbcf9-dc9b-4df6-a967-d1366a7a5f29'
   ];
 
   final List _swiperImages = [
-    'assets/images/pasta1.jpg',
-    'assets/images/pasta2.jpg',
-    'assets/images/pasta3.jpg',
-    'assets/images/pizza1.jpg'
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/cezar.jpg?alt=media&token=541cd799-7bdc-41d4-89db-b78d5bb643af',
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/bolognese.jpg?alt=media&token=7b45be1e-0c37-4987-aeee-f1190101a739',
+    'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/furnagiska.jpg?alt=media&token=67028620-bc82-45b0-b7ae-decded06dbc8'
   ];
+
+  /*  void fetchImages(String image) async{
+    final ref = FirebaseStorage.instance.ref().child(image);
+    // no need of the file extension, the name will do fine.
+    var url = await ref.getDownloadURL();
+    print(url);
+    _swiperImages.add(url);
+  }*/
 
   @override
   Widget build(BuildContext context) {
     final productsData = Provider.of<Products>(context);
+    productsData.FetchProducts();
     final popularItems = productsData.popularProducts;
 
     return Scaffold(
@@ -84,14 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 child: CarouselSlider(
                   items: [
-                    Image.asset(_carouselImages[0], fit: BoxFit.cover),
-                    Image.asset(_carouselImages[1], fit: BoxFit.cover),
-                    Image.asset(_carouselImages[2], fit: BoxFit.cover),
+                    Image.network(_carouselImages[0], fit: BoxFit.cover),
+                    Image.network(_carouselImages[1], fit: BoxFit.cover),
+                    Image.network(_carouselImages[2], fit: BoxFit.cover),
                   ],
                   options: CarouselOptions(
                     autoPlay: true,
                     autoPlayCurve: Curves.fastOutSlowIn,
-                    autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                    autoPlayAnimationDuration:
+                        const Duration(milliseconds: 1000),
                     enableInfiniteScroll: true,
                   ),
                   // boxFit: BoxFit.fill,
@@ -116,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 height: 180,
                 child: ListView.builder(
-                    itemCount: 4,
+                    itemCount: 5,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext ctx, int index) {
                       return CategoryWidget(
@@ -152,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                               color: Colors.blueGrey,
-                              child: Image.asset(_swiperImages[index],
+                              child: Image.network(_swiperImages[index],
                                   fit: BoxFit.cover)));
                     },
                   ),

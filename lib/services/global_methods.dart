@@ -12,7 +12,7 @@ class GlobalMethods{
             Padding(
               padding: const EdgeInsets.only(right:  6.0),
               child: Image.network(
-                'https://img.icons8.com/emoji/48/warning-emoji.png',
+                'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/warning-emoji.png?alt=media&token=d9758972-f86c-462e-9239-2fc1ece470bf',
                 height: 30,
                 width: 30,),
             ),
@@ -44,7 +44,7 @@ class GlobalMethods{
             Padding(
               padding: const EdgeInsets.only(right:  6.0),
               child: Image.network(
-                'https://img.icons8.com/emoji/48/warning-emoji.png',
+                'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/warning-emoji.png?alt=media&token=d9758972-f86c-462e-9239-2fc1ece470bf',
                 height: 20,
                 width: 20,),
             ),
@@ -74,7 +74,7 @@ class GlobalMethods{
             Padding(
               padding: const EdgeInsets.only(right:  6.0),
               child: Image.network(
-                'https://img.icons8.com/fluency/48/000000/info.png',
+                'https://firebasestorage.googleapis.com/v0/b/pizza-paradise-eb3c1.appspot.com/o/info.png?alt=media&token=3e9d65a9-6834-4562-8343-d449f3accf32',
                 height: 20,
                 width: 20,),
             ),
