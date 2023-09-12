@@ -25,7 +25,7 @@ class _FeedProductsState extends State<FeedProducts> {
           width: 250,
           height: 290,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(15),
               color: Theme.of(context).backgroundColor),
           child: Column(
             children: [
@@ -34,13 +34,13 @@ class _FeedProductsState extends State<FeedProducts> {
                   Stack(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(15),
                         child: Container(
                           width: double.infinity,
                           height: MediaQuery.of(context).size.height * 0.3,
                           child: Image.network(
                             productsAttributes.imageUrl,
-                            //   fit: BoxFit.fitWidth,
+                              fit: BoxFit.cover,
                           ),
                         ),
                       ),

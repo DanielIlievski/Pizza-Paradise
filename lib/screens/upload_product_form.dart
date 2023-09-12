@@ -188,13 +188,15 @@ class _UploadProductFormState extends State<UploadProductForm> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _isLoading ? Center(child: Container(
-                      height: 40,
-                      width: 40,
-                      child: const CircularProgressIndicator()))
-                      :  const Text('Upload',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center),
+                  child: _isLoading
+                      ? Center(
+                          child: Container(
+                              height: 40,
+                              width: 40,
+                              child: const CircularProgressIndicator()))
+                      : const Text('Upload',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center),
                 ),
                 const GradientIcon(
                   Feather.upload,
@@ -437,6 +439,14 @@ class _UploadProductFormState extends State<UploadProductForm> {
                                 DropdownMenuItem<String>(
                                   value: 'Pastrmajlija',
                                   child: Text('Pastrmajlija'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'Specialities',
+                                  child: Text('Specialities'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'Desserts',
+                                  child: Text('Desserts'),
                                 ),
                               ],
                               onChanged: (String? value) {

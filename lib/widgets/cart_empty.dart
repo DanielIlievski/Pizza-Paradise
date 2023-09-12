@@ -3,6 +3,8 @@ import '/consts/colors.dart';
 import '/provider/dark_theme_provider.dart';
 import 'package:provider/provider.dart';
 
+import '/screens/feeds.dart';
+
 class CartEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class CartEmpty extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.9,
           height: MediaQuery.of(context).size.height * 0.06,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {Navigator.of(context).pushNamed(FeedScreen.routeName);},
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
