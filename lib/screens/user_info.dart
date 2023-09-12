@@ -4,12 +4,14 @@ import 'package:list_tile_switch/list_tile_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '/consts/colors.dart';
 import '/consts/my_icons.dart';
 import '/provider/dark_theme_provider.dart';
 import '/screens/cart.dart';
 import '/screens/wishlist.dart';
+import '/services/global_methods.dart';
 
 class UserInfoScreen extends StatefulWidget {
   @override
@@ -27,6 +29,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   String? _joinedAt;
   int? _phoneNumber;
   String? _userImageUrl;
+  GlobalMethods _globalMethods = GlobalMethods();
 
   @override
   void initState() {
@@ -290,16 +293,75 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        splashColor: Theme
-            .of(context)
-            .splashColor,
+        splashColor: Theme.of(context).splashColor,
         child: ListTile(
-            onTap: () {
-              //OVDE POKAZI LOKACIJA KOGA KE CLICK
+            onTap: () async {
+              bool serviceEnabled;
+              LocationPermission permission;
 
-              Navigator.of(context).pushNamed(
-                  WishlistScreen.routeName
-              );
+              // Test if location services are enabled.
+              serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+              permission = await Geolocator.checkPermission();
+
+              if (permission == LocationPermission.denied) {
+                permission = await Geolocator.requestPermission();
+                if (permission == LocationPermission.denied) {
+                  return Future.error('Location permissions are denied');
+                }
+              }
+
+              if (permission == LocationPermission.deniedForever) {
+                // Permissions are denied forever, handle appropriately.
+                return Future.error(
+                    'Location permissions are permanently denied, we cannot request permissions.');
+              }
+
+              // GET PERMISSION FOR THE LOCATION
+              var locationMessage = "";
+              var position = await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.high);
+
+              var lastPosition = await Geolocator.getLastKnownPosition();
+              print(lastPosition);
+
+              setState(() {
+                locationMessage = "${position.latitude}, ${position.longitude}";
+              });
+
+              //  SHOW THE DIALOG WHEN CLICKED
+              showDialog(
+                  context: context,
+                  builder: (BuildContext ctx) {
+                    return AlertDialog(
+                      title: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6.0),
+                            child: Image.network(
+                              //location picture PIN
+                              'https://img.icons8.com/3d-fluency/94/location.png',
+                              height: 20,
+                              width: 20,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Location"),
+                          ),
+                        ],
+                      ),
+                      content: Text(
+                          "Your location is: \n Longitude: ${position.longitude} \n Latitude: ${position.latitude}"),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('OK'))
+                      ],
+                    );
+                  });
             },
             title: Text(title),
             subtitle: Text(subtitles),

@@ -248,7 +248,7 @@ class _MyAppState extends State<MyApp> {
               child: Consumer<DarkThemeProvider>(
                   builder: (context, themeData, child) {
                 return MaterialApp(
-                  title: 'Pizza Angela Struga',
+                  title: 'Pizza Paradise',
                   theme:
                       Styles.themeData(themeChangeProvider.darkTheme, context),
                   home: UserState(),
